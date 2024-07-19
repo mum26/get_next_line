@@ -1,22 +1,34 @@
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
+#include <libc.h>
 
-int	main(int argc, char *argv[])
+__attribute__((destructor))
+static void destructor() {
+    system("leaks -q a.out");
+}
+
+int	main(void)
 {
-	if (argc < 2)
-		return (0);
-	int fd = open(argv[1], O_RDONLY);
-	char	*line;
+	int fd1 = open("test1.txt", O_RDONLY);
+	int fd2 = open("test2.txt", O_RDONLY);
+	char	*line1;
+	char	*line2;
 
-	if (fd < 0)
-		return (printf("No such file or direactory.\n"));
+	if (fd1 < 0)
+		return (printf("fd1: No such file or direactory.\n"));
+	if (fd2 < 0)
+		return (printf("fd2: No such file or direactory.\n"));
+
 	while(true)
 	{
-		line = get_next_line(fd);
-		if (!line)
+		line1 = get_next_line(fd1);
+		line2 = get_next_line(fd2);
+		if (!line1 || !line2)
 			break ;
-		printf("%s", line);
-		free(line);
+		printf("%s%s", line1, line2);
+		free(line1);
+		free(line2);
 	}
-	close(fd);
+	close(fd1);
+	close(fd2);
 	return (0);
 }

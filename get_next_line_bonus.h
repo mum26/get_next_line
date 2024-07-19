@@ -10,8 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef GET_NEXT_LINE_H
-# define GET_NEXT_LINE_H
+#ifndef GET_NEXT_LINE_BONUS_H
+# define GET_NEXT_LINE_BONUS_H
 
 #include <unistd.h>
 #include <fcntl.h>
@@ -22,7 +22,7 @@
 #ifndef BUFFER_SIZE
 # define BUFFER_SIZE 1024
 #endif
-/*
+
 typedef struct s_file
 {
 	int		fd;
@@ -32,10 +32,12 @@ typedef struct s_file
 	size_t	buf_pos;
 	ssize_t	buf_len;
 } t_file;
-*/
+
 char	*get_next_line(int fd);
 char	ft_getc(int fd);
 size_t	ft_putc(char **str, char c);
+t_file	*create_fp(int fd);
+void	destroy_fp(t_file *fp);
 
 void	*ft_memcpy(void *dst, const void *src, size_t n);
 size_t	ft_strlen(const char *s);

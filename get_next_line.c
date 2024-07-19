@@ -10,68 +10,66 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-t_file *create_stream(int fd)
-{
-	t_file	*stream;
+#include "get_next_line.h"
 
-	if (fd < 0)
-		return (NULL);
-	stream = (t_file *)ft_calloc(1, sizeof(t_file));
-	if (!stream)
-		return ( NULL);
-	stream->fd = fd;
-	stream->buf_size = BUFFER_SIZE;
-	stream->buffer = (char *)ft_calloc(stream->buf_size, sizeof(char));
-	if (!stream->buffer)
-		return (free(stream), NULL);
-	return (stream);
+char	ft_getc(int fd)
+{
+	static char		buf[BUFFER_SIZE];
+	static size_t	buf_pos;
+	static int		bytes_read;
+	char			c;
+
+	if (!bytes_read)
+	{
+		bytes_read = read(fd, buf, BUFFER_SIZE);
+		buf_pos = 0;
+	}
+
+	if (0 <= --bytes_read)
+		c = *(buf + buf_pos++);
+	if (bytes_read < 0)
+		c = EOF;
+	return (c);
 }
 
-void *destroy_stream(t_file *stream)
+size_t	ft_putc(char **str, char c)
 {
-	if (stream)
-	{
-		if (stream->buffer)
-			free(stream->buffer);
-		free(stream);
-		stream = NULL;
-	}
-	return (NULL);
+	char	*new_str;
+	size_t	len;
+
+	if (!c)
+		return (0);
+	len = 0;
+	if (*str)
+		len = ft_strlen(*str);
+	new_str = (char *)malloc(sizeof(char) * len + 1);
+	if (!new_str)
+		return (free(str), 0);
+	ft_memcpy(new_str, *str, len);
+	*(new_str + len) = c;
+	if (!len)
+		free(*str);
+	*str = new_str;
+	return (1);
 }
 
 char	*get_next_line(int fd)
 {
-	static t_file	*stream;
-	char			line[BUFFER_SIZE];
-	ssize_t			bytes_read;
+	char	*result;
+	char	c;
 
 	if (fd < 0)
 		return (NULL);
-	stream = create_stream(fd);
-	if (!stream)
-		return (NULL);
-	while (true)
+	result = NULL;
+	while(true)
 	{
-		if (stream->buf_length <= stream->buf_position)
-			bytes_read = read(stream->fd, stream->buffer, stream->buf_size);
-		if (bytes_read <= 0)
-			return (NULL);
-		stream->buf_position = 0;
-		stream->buf_length = bytes_read;
-}
-
-int	main(int argc, char *argv[])
-{
-	int		fd;
-	char	*line;
-
-	fd = open(argv[1], O_RDONLY);
-	if (fd < 0)
-		return (printf(No such file or directory.));
-	line = NULL;
-	while (true)
-	{
-		
+		c = ft_getc(fd);
+		if (c == EOF)
+			break ;
+		ft_putc(&result, c);
+		if (c == '\n')
+			break ;
 	}
+	ft_putc(&result, '\0');
+	return (result);
 }
-

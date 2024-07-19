@@ -1,24 +1,26 @@
 #include "get_next_line.h"
 
-void	*ft_memset(void *b, int c, size_t len)
+void	*ft_memcpy(void *dst, const void *src, size_t n)
 {
-	unsigned char	*ptr;
+	unsigned char		*d;
+	const unsigned char	*s;
 
-	ptr = (unsigned char *)b;
-	while (len--)
-		*ptr++ = (unsigned char)c;
-	return (b);
+	d = dst;
+	s = src;
+	if (d == s)
+		return (dst);
+	while (n--)
+		*d++ = *s++;
+	return (dst);
 }
 
-void	*ft_calloc(size_t count, size_t size)
-{
-	void	*ptr;
 
-	if (count && size && (count > SIZE_MAX / size || size > SIZE_MAX / count))
-		return (NULL);
-	ptr = (void *)malloc(count * size);
-	if (!ptr)
-		return (NULL);
-	ft_memset(ptr, '\0', count * size);
-	return (ptr);
+size_t	ft_strlen(const char *s)
+{
+	size_t	len;
+
+	len = 0;
+	while (*s++)
+		len++;
+	return (len);
 }

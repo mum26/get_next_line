@@ -20,24 +20,30 @@
 #include <stdbool.h>
 
 #ifndef BUFFER_SIZE
-# define BUFFER_SIZE 1024
+# define BUFFER_SIZE 10
 #endif
-/*
-typedef struct s_file
+
+#define LINE_SIZE 1
+
+typedef struct	s_file
 {
-	int		fd;
-	char	mode;
-	char	*buf;
-	size_t	buf_size;
-	size_t	buf_pos;
-	ssize_t	buf_len;
-} t_file;
-*/
+	int		fd;			// file discrypter.
+	char	*buf_base;	// pointer to the beginning of the read buffer.
+	size_t	buf_size;	// buffer size.
+	char	*buf_cur;	// pointer to current buffer.
+	size_t	buf_len;	// remaining bytes.
+	char	*line_base;	// pointer to the beginning of the line.
+	size_t	line_size;	// line size.
+	size_t	line_len;	// namber of chars in a line.
+}				t_file;
+
 char	*get_next_line(int fd);
-char	ft_getc(int fd);
-size_t	ft_putc(char **str, char c);
+void	create_fp(t_file *fp, int fd);
+size_t	ft_fread(t_file *fp);
+int		ft_fgetc(t_file *fp);
 
 void	*ft_memcpy(void *dst, const void *src, size_t n);
 size_t	ft_strlen(const char *s);
+char	*ft_strchr(const char *s, int c);
 
 #endif

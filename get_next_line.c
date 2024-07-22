@@ -12,64 +12,120 @@
 
 #include "get_next_line.h"
 
-char	ft_getc(int fd)
+void	init_fp(t_file *fp, int fd)
 {
-	static char		buf[BUFFER_SIZE];
-	static size_t	buf_pos;
-	static int		bytes_read;
-	char			c;
+	fp->fd = fd;
+	fp->buf_base = (char *)malloc(sizeof(char) * BUFFER_SIZE);
+	fp->buf_size = BUFFER_SIZE;
+	fp->buf_cur = 0;
+	fp->buf_len = 0;
+	fp->line_base = NULL;
+	fp->line_size = 0;
+	fp->line_len = 0;
+}
 
-	if (!bytes_read)
-	{
-		bytes_read = read(fd, buf, BUFFER_SIZE);
-		buf_pos = 0;
-	}
+size_t	ft_fread(t_file *fp)
+{
+	ssize_t	bytes_read;
 
-	if (0 <= --bytes_read)
-		c = *(buf + buf_pos++);
+	bytes_read = read(fp->fd, fp->buf_base, BUFFER_SIZE);
 	if (bytes_read < 0)
-		c = EOF;
-	return (c);
+	{
+		fp->buf_len = 0;
+		free(fp->buf_base);
+		if (fp->line_base)
+			free(fp->line_base);
+	}
+	else
+		fp->buf_len = (size_t)bytes_read;
+	fp->buf_cur = fp->buf_base;
+	
+	return (fp->buf_len);
 }
 
-size_t	ft_putc(char **str, char c)
+int	ft_fgetc(t_file *fp)
 {
-	char	*new_str;
-	size_t	len;
-
-	if (!c)
-		return (0);
-	len = 0;
-	if (*str)
-		len = ft_strlen(*str);
-	new_str = (char *)malloc(sizeof(char) * len + 1);
-	if (!new_str)
-		return (free(*str), 0);
-	ft_memcpy(new_str, str, len);
-	*(new_str + len) = c;
-	if (!len)
-		free(str);
-	str = new_str;
-	return (1);
+	if (fp->buf_len <= 0)
+		if (!ft_fread(fp))
+			return (EOF);
+	if (0 < fp->buf_len--)
+		return ((unsigned char)*(fp->buf_cur++));
+	return (0);
 }
+
+#include <string.h>
 
 char	*get_next_line(int fd)
 {
-	char	*result;
-	char	c;
+	static t_file	fp;
+	char			c;
 
-	if (fd < 0)
-		return (NULL);
-	result = NULL;
+	if (fp.fd != fd)
+		init_fp(&fp, fd);
+	fp.line_base = NULL;
 	while(true)
 	{
-		c = ft_getc(fd);
+		c = (unsigned char)ft_fgetc(&fp);
 		if (c == EOF)
-			break ;
-		ft_putc(result, c);
+			return (NULL);
+		if (!fp.line_base)
+		{
+			if (!fp.line_size)
+				fp.line_size = LINE_SIZE;
+			fp.line_len = 0;
+			fp.line_base = (char *)malloc(sizeof(char) * fp.line_size);
+		}
+		else if (fp.line_size <= fp.line_len)
+		{
+			fp.line_size *= 2;
+			fp.line_base = (char *)realloc(fp.line_base, sizeof(char) * fp.line_size);
+		}
 		if (c == '\n')
 			break ;
+		*(fp.line_base + fp.line_len++) = c;
 	}
-	ft_putc(result, '\0');
+	*(fp.line_base + fp.line_len++) = c;
+	return (fp.line_base);
+}
+
+int main(void)
+{
+	int fd = open("main.c", O_RDONLY);
+	char *p;
+
+	while ((p = get_next_line(fd)))
+	{
+		printf("%s", p);
+		free(p);
+	}
+	return (0);
+}
+
+/*
+char	*get_next_line(int fd)
+{
+	char			*result;
+	static t_file	*fp;
+	size_t			start;
+
+	result = NULL;
+	if (fd < 0)
+		return (NULL);
+	if (!fp)
+		fp = create_fp(fd);
+	if (!fp)
+		return (NULL);
+	if (fp->buf_len <= fp->buf_pos)
+		if (!ft_fread(fp))
+			return (destroy_fp(fp), NULL);
+	start = fp->buf_pos;
+	while (*(fp->buf + fp->buf_pos++))
+		if (*(fp->buf + fp->buf_pos) == '\n')
+			break ;
+	result = (char *)malloc(sizeof(char) * fp->buf_pos++ - start + 1);
+	ft_memcpy(result, fp->buf + start, fp->buf_pos - start);
+	*(result + fp->buf_pos - start) = '\0';
 	return (result);
 }
+*/
+

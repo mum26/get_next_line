@@ -6,7 +6,7 @@
 /*   By: sishige <sishige@student.42tokyo.j>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/18 17:39:01 by sishige           #+#    #+#             */
-/*   Updated: 2024/07/18 21:40:28 by sishige          ###   ########.fr       */
+/*   Updated: 2024/07/22 23:06:30 by sishige          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,18 +23,19 @@
 # define BUFFER_SIZE 10
 #endif
 
-#define LINE_SIZE 1
+#define LINE_SIZE 128
 
 typedef struct	s_file
 {
 	int		fd;			// file discrypter.
-	char	*buf_base;	// pointer to the beginning of the read buffer.
+	char	buf_base[BUFFER_SIZE];	// pointer to the beginning of the read buffer.
 	size_t	buf_size;	// buffer size.
 	char	*buf_cur;	// pointer to current buffer.
 	size_t	buf_len;	// remaining bytes.
 	char	*line_base;	// pointer to the beginning of the line.
 	size_t	line_size;	// line size.
 	size_t	line_len;	// namber of chars in a line.
+	ssize_t	flgs;
 }				t_file;
 
 char	*get_next_line(int fd);

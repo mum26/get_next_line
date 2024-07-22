@@ -6,22 +6,23 @@
 /*   By: sishige <sishige@student.42tokyo.j>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/18 15:40:40 by sishige           #+#    #+#             */
-/*   Updated: 2024/07/18 21:38:02 by sishige          ###   ########.fr       */
+/*   Updated: 2024/07/22 23:06:42 by sishige          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-void	init_fp(t_file *fp, int fd)
+int	init_fp(t_file *fp, int fd)
 {
 	fp->fd = fd;
-	fp->buf_base = (char *)malloc(sizeof(char) * BUFFER_SIZE);
 	fp->buf_size = BUFFER_SIZE;
 	fp->buf_cur = 0;
 	fp->buf_len = 0;
 	fp->line_base = NULL;
 	fp->line_size = 0;
 	fp->line_len = 0;
+	fp->flgs = 0;
+	return (0);
 }
 
 size_t	ft_fread(t_file *fp)
@@ -32,7 +33,6 @@ size_t	ft_fread(t_file *fp)
 	if (bytes_read < 0)
 	{
 		fp->buf_len = 0;
-		free(fp->buf_base);
 		if (fp->line_base)
 			free(fp->line_base);
 	}
@@ -60,37 +60,42 @@ char	*get_next_line(int fd)
 	static t_file	fp;
 	char			c;
 
+	if (fd < 0 || BUFFER_SIZE <= 0)
+		return (NULL);
 	if (fp.fd != fd)
 		init_fp(&fp, fd);
 	fp.line_base = NULL;
-	while(true)
+	while(fp.flgs != EOF)
 	{
 		c = (unsigned char)ft_fgetc(&fp);
 		if (c == EOF)
-			return (NULL);
+			fp.flgs = EOF;
 		if (!fp.line_base)
 		{
 			if (!fp.line_size)
 				fp.line_size = LINE_SIZE;
 			fp.line_len = 0;
 			fp.line_base = (char *)malloc(sizeof(char) * fp.line_size);
+			if (!fp.line_base)
+				return (NULL);
 		}
-		else if (fp.line_size <= fp.line_len)
+		if (fp.line_size - 1 <= fp.line_len)
 		{
 			fp.line_size *= 2;
 			fp.line_base = (char *)realloc(fp.line_base, sizeof(char) * fp.line_size);
 		}
+		if (c != EOF)
+			*(fp.line_base + fp.line_len++) = c;
 		if (c == '\n')
 			break ;
-		*(fp.line_base + fp.line_len++) = c;
 	}
-	*(fp.line_base + fp.line_len++) = c;
+	*(fp.line_base + fp.line_len) = '\0';
 	return (fp.line_base);
 }
 
 int main(void)
 {
-	int fd = open("main.c", O_RDONLY);
+	int fd = open("a.txt", O_RDONLY);
 	char *p;
 
 	while ((p = get_next_line(fd)))
@@ -128,4 +133,3 @@ char	*get_next_line(int fd)
 	return (result);
 }
 */
-

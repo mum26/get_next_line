@@ -6,7 +6,7 @@
 /*   By: sishige <sishige@student.42tokyo.j>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/18 15:40:40 by sishige           #+#    #+#             */
-/*   Updated: 2024/07/18 21:38:02 by sishige          ###   ########.fr       */
+/*   Updated: 2024/07/25 01:30:19 by sishige          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,124 +14,85 @@
 
 void	init_fp(t_file *fp, int fd)
 {
-	if (fp->_base)
-		return ;
-	fp->fd = fd;
-	if (!fp->_base)
-		return ;
-	fp->_size = BUFFER_SIZE;
-	fp->_cur = fp->_base;
-	fp->line._base = (char *)malloc(sizeof(char) * LINE_SIZE);
-	if (!fp->line._base)
-		return ;
-	fp->line._size = LINE_SIZE;
+	fp->line._base = NULL;
+	fp->line._size = 0;
 	fp->line._len = 0;
+	if (fp->_flgs != 0)
+		return ;
+	fp->_fd = fd;
+	*fp->_base = '\0';
+	fp->_size = BUFFER_SIZE;
+	fp->_len = 0;
+	fp->_cur = fp->_base;
 	fp->_flgs = 0;
-}
-
-size_t	ft_fread(t_file *fp)
-{
-	ssize_t	bytes_read;
-
-	bytes_read = read(fp->fd, fp->buf_base, BUFFER_SIZE);
-	if (bytes_read < 0)
-	{
-		fp->buf_len = 0;
-		free(fp->buf_base);
-		if (fp->line_base)
-			free(fp->line_base);
-	}
-	else
-		fp->buf_len = (size_t)bytes_read;
-	fp->buf_cur = fp->buf_base;
-	
-	return (fp->buf_len);
 }
 
 int	ft_fgetc(t_file *fp)
 {
-	if (fp->buf_len <= 0)
-		fp->_len = read(fp->fd, fp->_base, BUFFER_SIZE);
-	if (0 < fp->_len--)
-		return ((unsigned char)*(fp->buf_cur++));
-
-	if (fp->_len == EOF)
+	if (fp->_flgs < 0)
+		return (-1);
+	if (fp->_len <= 0)
 	{
-		fp->_flgs = EOF;
-		if(fp->line._base)
-			free(fp->line._base);
-		return (free(fp->_base), 0);
+		fp->_len = read(fp->_fd, fp->_base, BUFFER_SIZE);
+		if (fp->_len <= 0)
+		{
+			fp->_flgs = -1;
+			return (-1);
+		}
+		fp->_flgs = 1;
+		fp->_cur = fp->_base;
 	}
-	return (0);
+	fp->_len--;
+	return (*fp->_cur);
 }
 
-size_t	append_char(char **dst, const char c, size_t dstsize)
+size_t	append_char(char **dst, const char c, size_t dstsize, size_t dstlen)
 {
-	size_t	len;
 	char	*p;
 
-	if (!*dst || dstsize <= 0)
-		return (0)
-	p = NULL;
-	len = ft_strlen(*dst);
-	if (dstsize - 1 <= len)
+	if (!dst || dstsize < 0 || dstlen < 0)
+		return (0);
+	if (!*dst)
+	{
+		*dst = (char *)malloc(sizeof(char) * dstsize++);
+		if (!dst)
+			return (0);
+		**dst = '\0';
+	}
+	if (dstsize - 1 <= dstlen)
 	{
 		dstsize *= 2;
 		p = (char *)malloc(sizeof(char) * dstsize);
 		if (!p)
 			return (0);
-		memcpy(p, *dst, len);
+		ft_memcpy(p, *dst, dstlen);
 		free(*dst);
 		*dst = p;
 	}
-	*(*dst + len++) = c;
-	*(*dst + len) = '\0';
+	*(*dst + dstlen++) = c;
+	*(*dst + dstlen) = '\0';
 	return (dstsize);
 }
-
-#include <string.h>
 
 char	*get_next_line(int fd)
 {
 	static t_file	fp;
-	char			*p;
+	char			c;
 
+	if (fd < 0 || BUFFER_SIZE <= 0)
+		return (NULL);
 	init_fp(&fp, fd);
-	if (!fp.line._base)
+	if (fp._flgs < 0)
 		return (NULL);
-	if (fp._flgs == EOF)
-		return (NULL);
-	while(fp.flgs != EOF)
+	while (true)
 	{
-		ft_fgetc(&fp);
-		if (fp.line._size -1 <= fp.line._len)
-		{
-			fp.line_size *= 2;
-			p = (char *)malloc(sizeof(char) * fp.line_size);
-			if (!p)
-				return (free(fp.line._base), NULL);
-			memcpy(p, fp.line._base, fp.line._len);
-			free(fp.line._base);
-			fp.line._base = p;
-		}
-		*(fp.line_base + fp.line._len++) = *fp._cur++;
-		fp._size--;
+		c = ft_fgetc(&fp);
+		if (c == EOF)
+			return (NULL) ;
+		fp.line._size =  append_char(&fp.line._base, c, fp.line._size, fp.line._len++);
 		if (*fp._cur++ == '\n')
 			break ;
 	}
-	*(fp.line_base + fp.line_len++) = '\0';
-	return (fp.line_base);
-}
-
-int main(void)
-{
-	int fd = open("main.c", O_RDONLY);
-	char *p;
-
-	while ((p = get_next_line(fd)))
-	{
-		printf("%s", p);
-		free(p);
-	}
-	return (0);
+	*(fp.line._base + fp.line._len++) = '\0';
+	return (fp.line._base);
 }

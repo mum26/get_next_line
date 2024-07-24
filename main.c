@@ -8,27 +8,70 @@ static void	destructor(void) {
 	system("leaks -q a.out");
 }
 
+// TEST: init_fp()
+void	test_init_fp(t_file *fp, int fd)
+{
+	init_fp(fp, fd);
 
-int	main(int argc, char *argv[])
+	printf("\nTEST: init_fp()\n");
+	printf("fd\t\t: %d\n", fp->_fd);
+	printf("base\t\t: %s\n", fp->_base);
+	printf("size\t\t: %zu\n", fp->_size);
+	printf("len\t\t: %ld\n", fp->_len);
+	printf("cur\t\t: %s\n", fp->_cur);
+	printf("line_base\t: %s\n", fp->line._base);
+	printf("line_size\t: %zu\n", fp->line._size);
+	printf("line_len\t: %zu\n", fp->line._len);
+	printf("flgs\t\t: %d\n", fp->_flgs);
+}
+
+// TEST: ft_fgetc()
+void	test_ft_fgetc(t_file *fp)
+{
+	printf("\nTEST: ft_getc()\n");
+	printf("c\t\t: %c\n", ft_fgetc(fp));
+}
+
+
+// TEST: append_char()
+void	test_append_char(t_file *fp)
+{
+	fp->line._size = append_char(&fp->line._base, *(fp->_cur - 1), fp->line._size, fp->line._len);
+	printf("\nTEST: append_char()\n");
+	printf("line_base\t: %s\nline_size\t: %zu\n\n", fp->line._base, fp->line._size);
+}
+
+//int	main(void)
+//{
+//	static t_file	fp;
+//	int		fd;
+//
+//	fd = open("text.txt", O_RDONLY);
+//	test_init_fp(&fp, fd);
+//	test_ft_fgetc(&fp);
+//	test_append_char(&fp);
+//	free(fp.line._base);
+//	close(fd);
+//	return (0);
+//}
+
+int	main(void)
 {
 	int		fd;
-	char	*line;
-        size_t i = 1;
+	char	*str;
 
-        if (argc < 2)
-		return (printf("arg tarinai.\n"));
-	fd = open(argv[1], O_RDONLY);
-	if (fd < 0)
-		return (printf("fd1: No such file or direactory.\n"));
-	while (true)
+	fd = open("read_error.txt", O_RDONLY);
+	for (size_t i = 0; ; i++)
 	{
-		line = get_next_line(fd);
-		if (!line)
-			break ;
-		printf("line %5zu :%s", i, line);
-		free(line);
-                i++;
-        }
-        close(fd);
+		str = get_next_line(fd);
+		printf("Line %zu\t: %s", i, str);
+		if (!str)
+		{
+			break;
+		}
+		free(str);
+	}
+	free(str);
+	close(fd);
 	return (0);
 }

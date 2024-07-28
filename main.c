@@ -55,23 +55,22 @@ void	test_append_char(t_file *fp)
 //	return (0);
 //}
 
-int	main(void)
+int	main(int argc, char *argv[])
 {
 	int		fd;
 	char	*str;
 
-	fd = open("read_error.txt", O_RDONLY);
+	if (argc < 2)
+		return (printf("引数でファイルパスを指定してください。"));
+	fd = open(argv[1], O_RDONLY);
 	for (size_t i = 0; ; i++)
 	{
 		str = get_next_line(fd);
 		printf("Line %zu\t: %s", i, str);
 		if (!str)
-		{
 			break;
-		}
 		free(str);
 	}
-	free(str);
 	close(fd);
 	return (0);
 }

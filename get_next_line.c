@@ -6,7 +6,7 @@
 /*   By: sishige <sishige@student.42tokyo.j>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/18 15:40:40 by sishige           #+#    #+#             */
-/*   Updated: 2024/07/25 01:30:19 by sishige          ###   ########.fr       */
+/*   Updated: 2024/07/28 22:31:07 by sishige          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,16 +15,9 @@
 void	init_fp(t_file *fp, int fd)
 {
 	fp->line._base = NULL;
-	fp->line._size = 0;
+	fp->line._size = LINE_SIZE;
 	fp->line._len = 0;
-	if (fp->_flgs != 0)
-		return ;
 	fp->_fd = fd;
-	*fp->_base = '\0';
-	fp->_size = BUFFER_SIZE;
-	fp->_len = 0;
-	fp->_cur = fp->_base;
-	fp->_flgs = 0;
 }
 
 int	ft_fgetc(t_file *fp)
@@ -54,7 +47,7 @@ size_t	append_char(char **dst, const char c, size_t dstsize, size_t dstlen)
 		return (0);
 	if (!*dst)
 	{
-		*dst = (char *)malloc(sizeof(char) * dstsize++);
+		*dst = (char *)malloc(sizeof(char) * dstsize);
 		if (!dst)
 			return (0);
 		**dst = '\0';
@@ -76,7 +69,7 @@ size_t	append_char(char **dst, const char c, size_t dstsize, size_t dstlen)
 
 char	*get_next_line(int fd)
 {
-	static t_file	fp;
+	static t_file	fp = {0, "", BUFFER_SIZE, 0, fp._base, {NULL, LINE_SIZE, 0}, 0};
 	char			c;
 
 	if (fd < 0 || BUFFER_SIZE <= 0)
@@ -84,12 +77,18 @@ char	*get_next_line(int fd)
 	init_fp(&fp, fd);
 	if (fp._flgs < 0)
 		return (NULL);
-	while (true)
+	while (0 <= fp._flgs)
 	{
 		c = ft_fgetc(&fp);
-		if (c == EOF)
-			return (NULL) ;
-		fp.line._size =  append_char(&fp.line._base, c, fp.line._size, fp.line._len++);
+		if (!fp.line._base && fp._flgs < 0)
+			return (NULL);
+		if (c != EOF)
+			fp.line._size = append_char(&fp.line._base, c, fp.line._size, fp.line._len++);
+		else if (fp.line._len)
+		{
+			fp.line._size = append_char(&fp.line._base, '\0', fp.line._size, fp.line._len++);
+			return (fp.line._base);
+		}
 		if (*fp._cur++ == '\n')
 			break ;
 	}

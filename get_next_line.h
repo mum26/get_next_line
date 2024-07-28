@@ -6,7 +6,7 @@
 /*   By: sishige <sishige@student.42tokyo.j>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/18 17:39:01 by sishige           #+#    #+#             */
-/*   Updated: 2024/07/25 01:29:36 by sishige          ###   ########.fr       */
+/*   Updated: 2024/07/28 22:31:04 by sishige          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,12 +18,13 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <stdbool.h>
+# include <limits.h>
 
 # ifndef BUFFER_SIZE
-#  define BUFFER_SIZE 1
+#  define BUFFER_SIZE 10
 # endif
 
-# define LINE_SIZE 1
+# define LINE_SIZE 1024
 
 typedef struct s_line
 {
@@ -32,14 +33,11 @@ typedef struct s_line
 	size_t	_len;
 }				t_line;
 
-/*
-	Explanation of _flgs.
-	 1: Start reading file.
-	 0: File has not been read.
-	-1: End of file(EOF).
-	-2: Line._base memory allocation failure.
-*/
-
+//	Explanation of _flgs.
+//	 1: Start reading file.
+//	 0: File has not been read.
+//	-1: End of file(EOF).
+//	-2: Line._base memory allocation failure.
 typedef struct s_file
 {
 	int		_fd;
@@ -53,11 +51,9 @@ typedef struct s_file
 
 char	*get_next_line(int fd);
 void	init_fp(t_file *fp, int fd);
-size_t	ft_fread(t_file *fp);
 int		ft_fgetc(t_file *fp);
 size_t	append_char(char **dst, char c, size_t dstsize, size_t dstlen);
 
 void	*ft_memcpy(void *dst, const void *src, size_t len);
-size_t	ft_strlen(const char *s);
 
 #endif

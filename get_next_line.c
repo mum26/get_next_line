@@ -12,21 +12,13 @@
 
 #include "get_next_line.h"
 
-void	init_fp(t_file *fp, int fd)
-{
-	fp->line._base = NULL;
-	fp->line._size = LINE_SIZE;
-	fp->line._len = 0;
-	fp->_fd = fd;
-}
-
 int	ft_fgetc(t_file *fp)
 {
 	if (fp->_flgs < 0)
 		return (-1);
 	if (fp->_len <= 0)
 	{
-		fp->_len = read(fp->_fd, fp->_base, BUFFER_SIZE);
+		fp->_len = read(fp->_file, fp->_base, BUFFER_SIZE);
 		if (fp->_len <= 0)
 		{
 			fp->_flgs = -1;
@@ -36,62 +28,73 @@ int	ft_fgetc(t_file *fp)
 		fp->_cur = fp->_base;
 	}
 	fp->_len--;
-	return (*fp->_cur);
+	return (*fp->_cur++);
 }
 
-size_t	append_char(char **dst, const char c, size_t dstsize, size_t dstlen)
+void	*ft_realloc(void *ptr, size_t new_size, size_t old_size)
 {
-	char	*p;
+	void	*ret;
+	size_t	cpy_size;
 
-	if (!dst || dstsize < 0 || dstlen < 0)
-		return (0);
-	if (!*dst)
+	if (!new_size)
+		return (free(ptr), NULL);
+	if (!ptr)
+		return (malloc(new_size));
+	ret = malloc(new_size);
+	if (!ret)
+		return (free(ptr), NULL);
+	cpy_size = new_size;
+	if (cpy_size < old_size)
+		cpy_size = old_size;
+	ft_memcpy(ret, ptr, cpy_size);
+	return (free(ptr), ret);
+}
+
+//	On success, return the length of the string.
+//	On failure, return -1.
+int	ft_lputc(t_line *lp, int c)
+{
+	if (!lp)
+		return (-1);
+	if (!lp->_base)
 	{
-		*dst = (char *)malloc(sizeof(char) * dstsize);
-		if (!dst)
-			return (0);
-		**dst = '\0';
+		lp->_base = (char *)malloc(sizeof(char) * LINE_SIZE);
+		if (!lp->_base)
+			return (-1);
+		lp->_size = LINE_SIZE;
+		lp->_len = 0;
 	}
-	if (dstsize - 1 <= dstlen)
+	if (lp->_size - 1 <= lp->_len)
 	{
-		dstsize *= 2;
-		p = (char *)malloc(sizeof(char) * dstsize);
-		if (!p)
-			return (0);
-		ft_memcpy(p, *dst, dstlen);
-		free(*dst);
-		*dst = p;
+		lp->_base = (char *)ft_realloc(lp->_base, sizeof(char) * lp->_size * 2,
+				sizeof(char) * lp->_size);
+		if (!lp->_base)
+			return (-1);
+		lp->_size *= 2;
 	}
-	*(*dst + dstlen++) = c;
-	*(*dst + dstlen) = '\0';
-	return (dstsize);
+	*(lp->_base + lp->_len++) = (unsigned char)c;
+	*(lp->_base + lp->_len) = '\0';
+	return (lp->_len);
 }
 
 char	*get_next_line(int fd)
 {
-	static t_file	fp = {0, "", BUFFER_SIZE, 0, fp._base, {NULL, LINE_SIZE, 0}, 0};
+	static t_file	fp = {0, "", BUFFER_SIZE, 0, fp._base, {NULL, 0, 0}, 0};
 	char			c;
 
-	if (fd < 0 || BUFFER_SIZE <= 0)
+	if (fd < 0 || BUFFER_SIZE <= 0 || fp._flgs < 0)
 		return (NULL);
-	init_fp(&fp, fd);
-	if (fp._flgs < 0)
-		return (NULL);
+	fp._file = fd;
+	fp.line._base = NULL;
 	while (0 <= fp._flgs)
 	{
 		c = ft_fgetc(&fp);
-		if (!fp.line._base && fp._flgs < 0)
-			return (NULL);
 		if (c != EOF)
-			fp.line._size = append_char(&fp.line._base, c, fp.line._size, fp.line._len++);
-		else if (fp.line._len)
-		{
-			fp.line._size = append_char(&fp.line._base, '\0', fp.line._size, fp.line._len++);
-			return (fp.line._base);
-		}
-		if (*fp._cur++ == '\n')
+			ft_lputc(&fp.line, c);
+		if (c == '\n')
 			break ;
 	}
-	*(fp.line._base + fp.line._len++) = '\0';
+	if (!fp.line._base)
+		return (NULL);
 	return (fp.line._base);
 }

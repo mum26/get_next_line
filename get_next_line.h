@@ -21,7 +21,7 @@
 # include <limits.h>
 
 # ifndef BUFFER_SIZE
-#  define BUFFER_SIZE 10
+#  define BUFFER_SIZE 4096
 # endif
 
 # define LINE_SIZE 1024
@@ -40,7 +40,7 @@ typedef struct s_line
 //	-2: Line._base memory allocation failure.
 typedef struct s_file
 {
-	int		_fd;
+	int		_file;
 	char	_base[BUFFER_SIZE];
 	size_t	_size;
 	ssize_t	_len;
@@ -50,9 +50,9 @@ typedef struct s_file
 }				t_file;
 
 char	*get_next_line(int fd);
-void	init_fp(t_file *fp, int fd);
 int		ft_fgetc(t_file *fp);
-size_t	append_char(char **dst, char c, size_t dstsize, size_t dstlen);
+int		ft_lputc(t_line *lp, int c);
+void	*ft_realloc(void *ptr, size_t new_size, size_t old_size);
 
 void	*ft_memcpy(void *dst, const void *src, size_t len);
 

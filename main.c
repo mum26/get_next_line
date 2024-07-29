@@ -7,7 +7,7 @@ __attribute__((destructor)) static void destructor(void)
 }
 
 //// TEST: init_fp()
-//void	test_init_fp(t_file *fp, int fd)
+// void	test_init_fp(t_file *fp, int fd)
 //{
 //	init_fp(fp, fd);
 //	printf("\nTEST: init_fp()\n");
@@ -23,14 +23,14 @@ __attribute__((destructor)) static void destructor(void)
 //}
 //
 //// TEST: ft_fgetc()
-//void	test_ft_fgetc(t_file *fp)
+// void	test_ft_fgetc(t_file *fp)
 //{
 //	printf("\nTEST: ft_getc()\n");
 //	printf("c\t\t: %c\n", ft_fgetc(fp));
 //}
 //
 //// TEST: append_char()
-//void	test_append_char(t_file *fp)
+// void	test_append_char(t_file *fp)
 //{
 //	fp->line._size = append_char(&fp->line._base, *(fp->_cur - 1),
 //			fp->line._size, fp->line._len);

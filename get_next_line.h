@@ -6,7 +6,7 @@
 /*   By: sishige <sishige@student.42tokyo.j>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/18 17:39:01 by sishige           #+#    #+#             */
-/*   Updated: 2024/07/28 22:31:04 by sishige          ###   ########.fr       */
+/*   Updated: 2024/07/29 23:40:49 by sishige          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,6 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <stdbool.h>
-# include <limits.h>
 
 # ifndef BUFFER_SIZE
 #  define BUFFER_SIZE 4096
@@ -37,7 +36,6 @@ typedef struct s_line
 //	 1: Start reading file.
 //	 0: File has not been read.
 //	-1: End of file(EOF).
-//	-2: Line._base memory allocation failure.
 typedef struct s_file
 {
 	int		_file;

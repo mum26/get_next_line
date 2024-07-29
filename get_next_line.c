@@ -6,7 +6,7 @@
 /*   By: sishige <sishige@student.42tokyo.j>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/18 15:40:40 by sishige           #+#    #+#             */
-/*   Updated: 2024/07/28 22:31:07 by sishige          ###   ########.fr       */
+/*   Updated: 2024/07/29 23:48:25 by sishige          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,15 +20,11 @@ int	ft_fgetc(t_file *fp)
 	{
 		fp->_len = read(fp->_file, fp->_base, BUFFER_SIZE);
 		if (fp->_len <= 0)
-		{
-			fp->_flgs = -1;
-			return (-1);
-		}
+			return (fp->_flgs = -1, -1);
 		fp->_flgs = 1;
 		fp->_cur = fp->_base;
 	}
-	fp->_len--;
-	return (*fp->_cur++);
+	return (fp->_len--, *fp->_cur++);
 }
 
 void	*ft_realloc(void *ptr, size_t new_size, size_t old_size)
@@ -43,8 +39,9 @@ void	*ft_realloc(void *ptr, size_t new_size, size_t old_size)
 	ret = malloc(new_size);
 	if (!ret)
 		return (free(ptr), NULL);
-	cpy_size = new_size;
-	if (cpy_size < old_size)
+	if (new_size < old_size)
+		cpy_size = new_size;
+	else
 		cpy_size = old_size;
 	ft_memcpy(ret, ptr, cpy_size);
 	return (free(ptr), ret);
@@ -82,10 +79,11 @@ char	*get_next_line(int fd)
 	static t_file	fp = {0, "", BUFFER_SIZE, 0, fp._base, {NULL, 0, 0}, 0};
 	char			c;
 
-	if (fd < 0 || BUFFER_SIZE <= 0 || fp._flgs < 0)
+	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
 	fp._file = fd;
 	fp.line._base = NULL;
+	fp._flgs = 0;
 	while (0 <= fp._flgs)
 	{
 		c = ft_fgetc(&fp);

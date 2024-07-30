@@ -59,7 +59,7 @@ int	main(int argc, char *argv[])
 	char	*str;
 
 	if (argc < 2)
-		return (printf("引数でファイルパスを指定してください。"));
+		return (printf("引数でファイルパスを指定してください。\n"));
 	for (int i = 0; i < argc - 1; i++)
 		fd[i] = open(argv[i + 1], O_RDONLY);
 	for (int i = 0;; i++)

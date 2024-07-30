@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.h                                    :+:      :+:    :+:   */
+/*   get_next_line_bonus.h                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: sishige <sishige@student.42tokyo.j>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/07/18 17:39:01 by sishige           #+#    #+#             */
-/*   Updated: 2024/07/29 23:40:49 by sishige          ###   ########.fr       */
+/*   Created: 2024/07/30 21:32:54 by sishige           #+#    #+#             */
+/*   Updated: 2024/07/30 23:18:21 by sishige          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@
 # include <stdbool.h>
 
 # ifndef BUFFER_SIZE
-#  define BUFFER_SIZE 4096
+#  define BUFFER_SIZE 1
 # endif
 
 # define LINE_SIZE 1024
@@ -60,8 +60,8 @@ void	*ft_realloc(void *ptr, size_t new_size, size_t old_size);
 
 t_file	*init_fp(int fd);
 t_list	*ft_lstnew(void *content);
-void	ft_lstclear(t_list *lst, void (*del)(void *));
-t_file	*find_fp(t_list *lst, int fd);
+void	ft_lstclear(t_list **lst, void (*del)(void *));
+t_file	*find_fp(t_list **lst, int fd);
 void	*ft_memcpy(void *dst, const void *src, size_t len);
 
 #endif

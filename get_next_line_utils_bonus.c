@@ -6,7 +6,7 @@
 /*   By: sishige <sishige@student.42tokyo.j>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/24 18:59:18 by sishige           #+#    #+#             */
-/*   Updated: 2024/07/24 19:09:13 by sishige          ###   ########.fr       */
+/*   Updated: 2024/07/30 23:43:32 by sishige          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@ t_file	*init_fp(int fd)
 	fp->_file = fd;
 	*fp->_base = '\0';
 	fp->_size = BUFFER_SIZE;
+	fp->_len = 0;
 	fp->_cur = fp->_base;
 	fp->line._base = NULL;
 	fp->line._size = 0;
@@ -44,57 +45,71 @@ t_file	*init_fp(int fd)
 	return (fp);
 }
 
-t_list	*ft_lstnew(void *content)
+void ft_lstclear(t_list **lst, void (*del)(void *))
 {
-	t_list	*new;
+    t_list *next;
 
-	new = (t_list *)malloc(sizeof(t_list));
-	if (!new)
-		return (NULL);
-	new->content = content;
-	new->next = NULL;
-	return (new);
+    if (!lst || !del)
+        return;
+
+    while (*lst)
+    {
+        next = (*lst)->next;
+        del((*lst)->content);
+        free(*lst);
+        *lst = next;
+    }
+    *lst = NULL;
 }
 
-void	ft_lstclear(t_list *lst, void (*del)(void *))
+
+void	ft_lstclear(t_list **lst, void (*del)(void *))
 {
 	t_list	*next;
 
 	if (!lst || !del)
 		return ;
-	while (lst)
+	while (*lst)
 	{
-		next = lst->next;
-		del(lst->content);
-		free(lst);
-		lst = next;
+		next = (*lst)->next;
+		del((*lst)->content);
+		free(*lst);
+		*lst = next;
 	}
-	lst = NULL;
+	*lst = NULL;
 }
 
-t_file	*find_fp(t_list *find, int fd)
+t_file *find_fp(t_list **lst, int fd)
 {
-	if (!find)
-		return (NULL);
-	if (!find->content)
-	{
-		find->content = init_fp(fd);
-		if (!find->content)
-			return (NULL);
-		return (find->content);
-	}
-	while (find->content->_file != fd)
-	{
-		if (!find->next)
-		{
-			find->next = ft_lstnew(NULL);
-			if (!find->next)
-				return (NULL);
-			find->next->content = init_fp(fd);
-			if (!find->next->content)
-				return (NULL);
-		}
-		find = find->next;
-	}
-	return (find->content);
+    t_list *current;
+
+    if (!lst)
+        return (NULL);
+
+    if (!*lst)
+    {
+        *lst = ft_lstnew(init_fp(fd));
+        if (!*lst)
+            return (NULL);
+    }
+
+    current = *lst;
+
+    while (current)
+    {
+        t_file *content = (t_file *)(current->content);
+        if (content->_file == fd)
+            return content;
+
+        if (!current->next)
+        {
+            current->next = ft_lstnew(init_fp(fd));
+            if (!current->next)
+                return (NULL);
+        }
+
+        current = current->next;
+    }
+    
+    return NULL;
 }

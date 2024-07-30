@@ -1,5 +1,4 @@
 #include "get_next_line_bonus.h"
-
 #include <libc.h>
 
 __attribute__((destructor)) static void destructor(void)

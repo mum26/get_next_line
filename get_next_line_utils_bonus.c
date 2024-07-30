@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line_utils.c                              :+:      :+:    :+:   */
+/*   get_next_line_utils_bonus.c                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: sishige <sishige@student.42tokyo.j>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -56,29 +56,26 @@ t_list	*ft_lstnew(void *content)
 	return (new);
 }
 
-void	ft_lstadd_back(t_list **lst, t_list *new)
+void	ft_lstclear(t_list *lst, void (*del)(void *))
 {
-	t_list	*temp;
+	t_list	*next;
 
-	if (!lst || !new)
+	if (!lst || !del)
 		return ;
-	if (!*lst)
+	while (lst)
 	{
-		*lst = new;
-		return ;
+		next = lst->next;
+		del(lst->content);
+		free(lst);
+		lst = next;
 	}
-	temp = *lst;
-	while (temp->next)
-		temp = temp->next;
-	temp->next = new;
+	lst = NULL;
 }
 
-t_file	*find_fp(t_list *lst, int fd)
+t_file	*find_fp(t_list *find, int fd)
 {
-	t_list	*find;
-	if (!lst)
+	if (!find)
 		return (NULL);
-	find = lst;
 	if (!find->content)
 	{
 		find->content = init_fp(fd);

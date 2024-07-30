@@ -60,6 +60,7 @@ void	*ft_realloc(void *ptr, size_t new_size, size_t old_size);
 
 t_file	*init_fp(int fd);
 t_list	*ft_lstnew(void *content);
+void	ft_lstclear(t_list *lst, void (*del)(void *));
 t_file	*find_fp(t_list *lst, int fd);
 void	*ft_memcpy(void *dst, const void *src, size_t len);
 

@@ -14,106 +14,108 @@
 
 int	ft_fgetc(t_file *fp)
 {
+	size_t	i;
+
 	if (fp->_flgs < 0)
-		return (-1);
+		return (EOF);
 	if (fp->_len <= 0)
 	{
+		i = 0;
+		while (i < BUFFER_SIZE)
+			*(fp->_base + i++) = '\0';
 		fp->_len = read(fp->_file, fp->_base, BUFFER_SIZE);
 		if (fp->_len <= 0)
 		{
 			fp->_flgs = -1;
-			return (-1);
+			return (EOF);
 		}
 		fp->_flgs = 1;
 		fp->_cur = fp->_base;
 	}
-	return (fp->_len--, *fp->_cur++);
+	fp->_len--;
+	return ((unsigned char)*fp->_cur++);
 }
 
-
-void *ft_realloc(void *ptr, size_t new_size, size_t old_size)
+void	*ft_realloc(void *ptr, size_t new_size, size_t old_size)
 {
-    void *ret;
-    size_t cpy_size;
+	void	*ret;
+	size_t	cpy_size;
 
-    if (!new_size)
-    {
-        free(ptr);
-        return NULL;
-    }
-    if (!ptr)
-        return malloc(new_size);
-
-    ret = malloc(new_size);
-    if (!ret)
-    {
-        free(ptr);
-        return NULL;
-    }
-
-    cpy_size = (old_size < new_size) ? old_size : new_size;
-    ft_memcpy(ret, ptr, cpy_size);
-    free(ptr);
-    return ret;
+	if (!new_size)
+	{
+		free(ptr);
+		return (NULL);
+	}
+	if (!ptr)
+		return (malloc(new_size));
+	ret = malloc(new_size);
+	if (!ret)
+	{
+		free(ptr);
+		return (NULL);
+	}
+	if (old_size < new_size)
+		cpy_size = old_size;
+	else
+		cpy_size = new_size;
+	ft_memcpy(ret, ptr, cpy_size);
+	return (free(ptr), ret);
 }
 
 //	On success, return the length of the string.
 //	On failure, return -1.
-int ft_lputc(t_line *lp, int c)
+int	ft_lputc(t_line *lp, int c)
 {
-    if (!lp)
-        return (-1);
-    if (!lp->_base)
-    {
-        lp->_base = (char *)malloc(sizeof(char) * LINE_SIZE);
-        if (!lp->_base)
-            return (-1);
-        lp->_size = LINE_SIZE;
-        lp->_len = 0;
-    }
-    if (lp->_size - 1 <= lp->_len)
-    {
-        char *new_base = (char *)ft_realloc(lp->_base, sizeof(char) * lp->_size * 2, sizeof(char) * lp->_size);
-        if (!new_base)
-            return (-1);
-        lp->_base = new_base;
-        lp->_size *= 2;
-    }
-    *(lp->_base + lp->_len++) = (unsigned char)c;
-    *(lp->_base + lp->_len) = '\0';
-    return (lp->_len);
+	char	*new_base;
+
+	if (!lp)
+		return (-1);
+	if (!lp->_base)
+	{
+		lp->_base = (char *)malloc(sizeof(char) * LINE_SIZE);
+		if (!lp->_base)
+			return (-1);
+		lp->_size = LINE_SIZE;
+		lp->_len = 0;
+	}
+	if (lp->_size - 1 <= lp->_len)
+	{
+		new_base = (char *)ft_realloc(lp->_base, sizeof(char) * lp->_size * 2,
+				sizeof(char) * lp->_size);
+		if (!new_base)
+			return (-1);
+		lp->_base = new_base;
+		lp->_size *= 2;
+	}
+	*(lp->_base + lp->_len++) = (unsigned char)c;
+	*(lp->_base + lp->_len) = '\0';
+	return (lp->_len);
 }
 
-
-char *get_next_line(int fd)
+char	*get_next_line(int fd)
 {
-    static t_list *list = NULL;
-    t_file *fp;
-    char c;
+	static t_list	*lst = NULL;
+	t_file			*fp;
+	char			c;
 
-    if (fd < 0 || BUFFER_SIZE <= 0)
-        return (NULL);
-
-    fp = find_fp(&list, fd);
-    if (!fp)
-        return (ft_lstclear(&list, &free), NULL);
-
-    if (fp->line._base)
-        free(fp->line._base);
-    fp->line._base = NULL;
-    fp->line._size = 0;
-    fp->line._len = 0;
-
-    fp->_flgs = 0;
-    while (0 <= fp->_flgs)
-    {
-        c = ft_fgetc(fp);
-        if (c != EOF)
-            ft_lputc(&fp->line, c);
-        if (c == '\n')
-            break ;
-    }
-    if (!fp->line._base)
-        return (ft_lstclear(&list, &free), NULL);
-    return (fp->line._base);
+	if (fd < 0 || BUFFER_SIZE <= 0)
+		return (NULL);
+	fp = find_fp(&lst, fd);
+	if (!fp)
+		return (ft_lstclear(&lst, &free), NULL);
+	fp->line._base = NULL;
+	fp->line._size = 0;
+	fp->line._len = 0;
+	fp->_flgs = 0;
+	while (0 <= fp->_flgs)
+	{
+		c = ft_fgetc(fp);
+		if (c != EOF)
+			ft_lputc(&fp->line, c);
+		if (c == '\n')
+			break ;
+	}
+	if (!fp->line._base)
+		return (ft_lstclear(&lst, &free), NULL);
+	return (fp->line._base);
 }

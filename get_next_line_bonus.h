@@ -23,7 +23,7 @@
 #  define BUFFER_SIZE 1
 # endif
 
-# define LINE_SIZE 1024
+# define LINE_SIZE 1
 
 typedef struct s_line
 {

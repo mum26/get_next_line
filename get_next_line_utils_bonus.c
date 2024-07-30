@@ -29,12 +29,15 @@ void	*ft_memcpy(void *dst, const void *src, size_t len)
 t_file	*init_fp(int fd)
 {
 	t_file	*fp;
+	size_t	i;
 
 	fp = (t_file *)malloc(sizeof(t_file));
 	if (!fp)
 		return (NULL);
 	fp->_file = fd;
-	*fp->_base = '\0';
+	i = 0;
+	while (i < BUFFER_SIZE)
+		*(fp->_base + i++) = '\0';
 	fp->_size = BUFFER_SIZE;
 	fp->_len = 0;
 	fp->_cur = fp->_base;
@@ -45,23 +48,17 @@ t_file	*init_fp(int fd)
 	return (fp);
 }
 
-void ft_lstclear(t_list **lst, void (*del)(void *))
+t_list	*ft_lstnew(void *content)
 {
-    t_list *next;
+	t_list	*new;
 
-    if (!lst || !del)
-        return;
-
-    while (*lst)
-    {
-        next = (*lst)->next;
-        del((*lst)->content);
-        free(*lst);
-        *lst = next;
-    }
-    *lst = NULL;
+	new = (t_list *)malloc(sizeof(t_list));
+	if (!new)
+		return (NULL);
+	new->content = content;
+	new->next = NULL;
+	return (new);
 }
-
 
 void	ft_lstclear(t_list **lst, void (*del)(void *))
 {
@@ -79,37 +76,25 @@ void	ft_lstclear(t_list **lst, void (*del)(void *))
 	*lst = NULL;
 }
 
-t_file *find_fp(t_list **lst, int fd)
+t_file	*find_fp(t_list **lst, int fd)
 {
-    t_list *current;
-
-    if (!lst)
-        return (NULL);
-
-    if (!*lst)
-    {
-        *lst = ft_lstnew(init_fp(fd));
-        if (!*lst)
-            return (NULL);
-    }
-
-    current = *lst;
-
-    while (current)
-    {
-        t_file *content = (t_file *)(current->content);
-        if (content->_file == fd)
-            return content;
-
-        if (!current->next)
-        {
-            current->next = ft_lstnew(init_fp(fd));
-            if (!current->next)
-                return (NULL);
-        }
-
-        current = current->next;
-    }
-    
-    return NULL;
+	if (!lst)
+		return (NULL);
+	if (!*lst)
+	{
+		*lst = ft_lstnew(init_fp(fd));
+		if (!*lst)
+			return (NULL);
+	}
+	while ((*lst)->content->_file != fd)
+	{
+		if (!(*lst)->next)
+		{
+			(*lst)->next = ft_lstnew(init_fp(fd));
+			if (!(*lst)->next)
+				return (NULL);
+		}
+		*lst = (*lst)->next;
+	}
+	return ((*lst)->content);
 }

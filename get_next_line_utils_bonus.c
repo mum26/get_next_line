@@ -6,7 +6,7 @@
 /*   By: sishige <sishige@student.42tokyo.j>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/24 18:59:18 by sishige           #+#    #+#             */
-/*   Updated: 2024/07/30 23:43:32 by sishige          ###   ########.fr       */
+/*   Updated: 2024/07/31 18:02:39 by sishige          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,8 @@ t_list	*ft_lstnew(void *content)
 {
 	t_list	*new;
 
+	if (!content)
+		return (NULL);
 	new = (t_list *)malloc(sizeof(t_list));
 	if (!new)
 		return (NULL);
@@ -78,6 +80,8 @@ void	ft_lstclear(t_list **lst, void (*del)(void *))
 
 t_file	*find_fp(t_list **lst, int fd)
 {
+	t_list	*cur;
+
 	if (!lst)
 		return (NULL);
 	if (!*lst)
@@ -86,15 +90,16 @@ t_file	*find_fp(t_list **lst, int fd)
 		if (!*lst)
 			return (NULL);
 	}
-	while ((*lst)->content->_file != fd)
+	cur = *lst;
+	while (cur->content->_file != fd)
 	{
-		if (!(*lst)->next)
+		if (!cur->next)
 		{
-			(*lst)->next = ft_lstnew(init_fp(fd));
-			if (!(*lst)->next)
+			cur->next = ft_lstnew(init_fp(fd));
+			if (!cur->next)
 				return (NULL);
 		}
-		*lst = (*lst)->next;
+		cur = cur->next;
 	}
-	return ((*lst)->content);
+	return (cur->content);
 }

@@ -6,7 +6,7 @@
 /*   By: sishige <sishige@student.42tokyo.j>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/30 21:32:54 by sishige           #+#    #+#             */
-/*   Updated: 2024/07/30 23:18:21 by sishige          ###   ########.fr       */
+/*   Updated: 2024/07/31 18:15:29 by sishige          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,10 +20,10 @@
 # include <stdbool.h>
 
 # ifndef BUFFER_SIZE
-#  define BUFFER_SIZE 1
+#  define BUFFER_SIZE 4096
 # endif
 
-# define LINE_SIZE 1
+# define LINE_SIZE 1024
 
 typedef struct s_line
 {

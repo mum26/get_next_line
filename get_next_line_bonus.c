@@ -6,7 +6,7 @@
 /*   By: sishige <sishige@student.42tokyo.j>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/18 15:40:40 by sishige           #+#    #+#             */
-/*   Updated: 2024/07/30 23:44:40 by sishige          ###   ########.fr       */
+/*   Updated: 2024/07/31 18:15:41 by sishige          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,6 @@ int	ft_fgetc(t_file *fp)
 	if (fp->_len <= 0)
 	{
 		i = 0;
-		while (i < BUFFER_SIZE)
-			*(fp->_base + i++) = '\0';
 		fp->_len = read(fp->_file, fp->_base, BUFFER_SIZE);
 		if (fp->_len <= 0)
 		{
@@ -54,10 +52,9 @@ void	*ft_realloc(void *ptr, size_t new_size, size_t old_size)
 		free(ptr);
 		return (NULL);
 	}
+	cpy_size = new_size;
 	if (old_size < new_size)
 		cpy_size = old_size;
-	else
-		cpy_size = new_size;
 	ft_memcpy(ret, ptr, cpy_size);
 	return (free(ptr), ret);
 }
